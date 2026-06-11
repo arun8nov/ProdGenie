@@ -1,0 +1,25 @@
+# Environments & Virtual Envs
+.env
+.venv/
+env/
+venv/
+
+# Google API OAuth Credentials & Access Tokens
+credentials.json
+token.json
+
+# SQLite Database & Caching Files
+local_data.db
+local_data.db-journal
+*.pkl
+schema_mapping.json
+
+# Python byte-code / caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Editor configurations
+.vscode/
+.idea/
+.DS_Store
