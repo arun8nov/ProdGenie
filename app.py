@@ -209,10 +209,149 @@ def get_config():
     sheet_url = os.getenv("sheet_url")
     sheet_name = os.getenv("sheet_name")
     nvidia_api_key = os.getenv("nvidia_api_key")
-    return api_key, sheet_url, sheet_name, nvidia_api_key
+    app_password = os.getenv("app_password", "admin123")
+    return api_key, sheet_url, sheet_name, nvidia_api_key, app_password
 
 # Initialize configurations
-api_key, sheet_url, sheet_name, nvidia_api_key = get_config()
+api_key, sheet_url, sheet_name, nvidia_api_key, app_password = get_config()
+
+def check_password():
+    """Returns True if the user has entered the correct password."""
+    def password_entered():
+        if st.session_state["password"] == app_password:
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # don't store password in session state
+        else:
+            st.session_state["password_correct"] = False
+
+    if st.session_state.get("password_correct", False):
+        return True
+
+    # Show login UI
+    logo_b64 = get_base64_logo()
+    
+    # Custom login card container styling
+    st.markdown("""
+        <style>
+        /* Force dark radial background for full app container only during login */
+        [data-testid="stAppViewContainer"] {
+            background: radial-gradient(circle at 50% 50%, #082012 0%, #030a06 100%) !important;
+        }
+        
+        /* Hide default Streamlit headers and footers on login page */
+        [data-testid="stHeader"] {
+            background-color: transparent !important;
+        }
+        
+        .login-card {
+            max-width: 440px;
+            margin: 10% auto;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.03) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+            border: 1px solid rgba(16, 124, 65, 0.25) !important;
+            border-radius: 24px !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 250, 154, 0.05),
+                        inset 0 0 15px rgba(16, 124, 65, 0.15) !important;
+            text-align: center;
+            color: #e2e8f0;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        .logo-glow-ring {
+            display: inline-block;
+            padding: 6px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(16, 124, 65, 0.4), rgba(51, 200, 117, 0.4));
+            box-shadow: 0 0 25px rgba(16, 124, 65, 0.35);
+            margin-bottom: 20px;
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(51, 200, 117, 0.3); }
+            50% { box-shadow: 0 0 35px rgba(51, 200, 117, 0.65); }
+        }
+        
+        .login-logo {
+            object-fit: contain;
+            border-radius: 14px;
+        }
+        
+        .login-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #33c875 0%, #107c41 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+        
+        .login-subtitle {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.78rem;
+            color: #a7f3d0;
+            opacity: 0.75;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+        
+        /* Custom styled input fields for streamlit */
+        .stTextInput > div > div > input {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(16, 124, 65, 0.3) !important;
+            border-radius: 12px !important;
+            padding: 12px 16px !important;
+            transition: all 0.3s ease !important;
+            text-align: center;
+        }
+        
+        .stTextInput > div > div > input:focus {
+            border-color: #33c875 !important;
+            box-shadow: 0 0 15px rgba(51, 200, 117, 0.3) !important;
+            background-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        
+        /* Streamlit label styling */
+        .stTextInput label {
+            color: #cbd5e1 !important;
+            font-size: 0.9rem !important;
+            font-weight: 500 !important;
+            margin-bottom: 8px !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Render Login Card
+    st.markdown('<div class="login-card">', unsafe_allow_html=True)
+    
+    if logo_b64:
+        st.markdown(
+            f'<div class="logo-glow-ring">'
+            f'<img class="login-logo" src="data:image/png;base64,{logo_b64}" width="75" height="75">'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+    
+    st.markdown('<div class="login-title">ProdGenie</div>', unsafe_allow_html=True)
+    st.markdown('<div class="login-subtitle">Productivity Analytics Engine</div>', unsafe_allow_html=True)
+    
+    password_input = st.text_input("SECURE ACCESS GATEWAY", type="password", key="password", placeholder="••••••••", on_change=password_entered)
+    
+    if "password_correct" in st.session_state and not st.session_state["password_correct"]:
+        st.error("😕 Access Denied. Please try again.")
+        
+    st.markdown('</div>', unsafe_allow_html=True)
+    return False
+
+if not check_password():
+    st.stop()
 
 class LLMResponse:
     def __init__(self, text):

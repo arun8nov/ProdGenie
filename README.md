@@ -32,6 +32,7 @@ ai_studio_api_key = "your_google_gemini_api_key"
 nvidia_api_key = "your_nvidia_api_key"
 sheet_url = "your_google_sheets_url"
 sheet_name = "Task Entry"
+app_password = "your_chosen_password"  # Default is admin123
 ```
 
 ### 3. Add Google Sheets OAuth Credentials
