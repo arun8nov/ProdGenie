@@ -243,20 +243,34 @@ def check_password():
             background-color: transparent !important;
         }
         
-        .login-card {
-            max-width: 440px;
-            margin: 10% auto;
-            padding: 40px;
+        /* Style the Streamlit container that has the login marker as the card */
+        div[data-testid="stVerticalBlock"]:has(.login-marker) {
+            max-width: 440px !important;
+            margin: 10vh auto !important;
+            padding: 40px !important;
             background: rgba(255, 255, 255, 0.03) !important;
-            backdrop-filter: blur(20px) saturate(180%) !important;
-            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-            border: 1px solid rgba(16, 124, 65, 0.25) !important;
+            backdrop-filter: blur(25px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+            border: 1px solid rgba(16, 124, 65, 0.2) !important;
             border-radius: 24px !important;
             box-shadow: 0 8px 32px 0 rgba(0, 250, 154, 0.05),
                         inset 0 0 15px rgba(16, 124, 65, 0.15) !important;
-            text-align: center;
+            text-align: center !important;
             color: #e2e8f0;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
             animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        /* Ensure child widgets are centered inside the card */
+        div[data-testid="stVerticalBlock"]:has(.login-marker) > div {
+            width: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
         }
         
         .logo-glow-ring {
@@ -299,6 +313,7 @@ def check_password():
             text-transform: uppercase;
             letter-spacing: 1.5px;
             font-weight: 600;
+            text-align: center;
         }
         
         /* Custom styled input fields for streamlit */
@@ -324,30 +339,32 @@ def check_password():
             font-size: 0.9rem !important;
             font-weight: 500 !important;
             margin-bottom: 8px !important;
+            text-align: center;
+            width: 100%;
         }
         </style>
     """, unsafe_allow_html=True)
 
     # Render Login Card
-    st.markdown('<div class="login-card">', unsafe_allow_html=True)
-    
-    if logo_b64:
-        st.markdown(
-            f'<div class="logo-glow-ring">'
-            f'<img class="login-logo" src="data:image/png;base64,{logo_b64}" width="75" height="75">'
-            f'</div>',
-            unsafe_allow_html=True
-        )
-    
-    st.markdown('<div class="login-title">ProdGenie</div>', unsafe_allow_html=True)
-    st.markdown('<div class="login-subtitle">Productivity Analytics Engine</div>', unsafe_allow_html=True)
-    
-    password_input = st.text_input("SECURE ACCESS GATEWAY", type="password", key="password", placeholder="••••••••", on_change=password_entered)
-    
-    if "password_correct" in st.session_state and not st.session_state["password_correct"]:
-        st.error("😕 Access Denied. Please try again.")
+    with st.container():
+        st.markdown('<div class="login-marker"></div>', unsafe_allow_html=True)
         
-    st.markdown('</div>', unsafe_allow_html=True)
+        if logo_b64:
+            st.markdown(
+                f'<div class="logo-glow-ring">'
+                f'<img class="login-logo" src="data:image/png;base64,{logo_b64}" width="75" height="75">'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+        
+        st.markdown('<div class="login-title">ProdGenie</div>', unsafe_allow_html=True)
+        st.markdown('<div class="login-subtitle">Productivity Analytics Engine</div>', unsafe_allow_html=True)
+        
+        password_input = st.text_input("SECURE ACCESS GATEWAY", type="password", key="password", placeholder="••••••••", on_change=password_entered)
+        
+        if "password_correct" in st.session_state and not st.session_state["password_correct"]:
+            st.error("😕 Access Denied. Please try again.")
+            
     return False
 
 if not check_password():
